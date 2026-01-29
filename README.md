@@ -73,4 +73,19 @@ The final solution reflects how production enterprise networks are architected a
 ---
 
 ## Repository Structure
+## Repository Structure
 
+```
+Enterprise-WAN-Design/
+├── README.md
+├── diagrams/
+│   └── topology.png
+├── docs/
+│   ├── Network_Design_Document.md
+│   ├── IP_Addressing_Plan.md
+│   ├── VLAN_and_Trunking.md
+│   ├── Routing_and_OSPF.md
+│   ├── Security_Controls.md
+│   └── Validation_and_Testing.md
+└── configs/
+```
