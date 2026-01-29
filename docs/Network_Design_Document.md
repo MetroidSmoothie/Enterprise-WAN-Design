@@ -48,7 +48,7 @@ The network was designed to achieve the following:
 
 ### Logical Layout
 
-diagrams/topology.png 
+(Enterprise-Wan-Design/diagrams/topology.png)
 
 ---
 
