@@ -240,14 +240,5 @@ This project demonstrates hands-on experience with:
 
 - Cisco Packet Tracer
 - Cisco IOS CLI
-- Markdown documentation
-
----
-
-## 13. Related Documentation
-
-- IP_Addressing_Plan.md
-- Routing_and_OSPF.md
-- Security_Controls.md
-- Validation_and_Testing.md
+  
 
