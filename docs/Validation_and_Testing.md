@@ -86,10 +86,3 @@ Configurations were saved to NVRAM using:
 copy running-config startup-config
 ```
 
-## Related Documentation
-
-- [Network Design](Network_Design_Document.md)
-- [Routing & OSPF](Routing_and_OSPF.md)
-- [Security Controls](Security_Controls.md)
-- [Router Configurations](../configs/Router_Configuration.md)
-- [Switch Configurations](../configs/Switch_Configuration.md)
