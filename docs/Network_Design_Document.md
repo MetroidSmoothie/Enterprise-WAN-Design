@@ -1,6 +1,5 @@
 # Network Design Document
 ## Enterprise WAN Architecture & Segmentation
-### Mock Banking Environment
 
 ---
 
