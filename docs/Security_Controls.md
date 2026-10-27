@@ -63,10 +63,3 @@ Office 1 uses three VLANs to separate departmental broadcast domains.
 | 30 | Accounting |
 
 Inter-VLAN routing is enabled through R1. VLAN membership alone does not prevent communication between departments; additional filtering would be required to enforce departmental traffic restrictions.
-
-## Implementation & Testing
-
-- [Router Configurations](../configs/Router_Configuration.md)
-- [Switch Configurations](../configs/Switch_Configuration.md)
-- [VLANs & Trunking](VLAN_and_Trunking.md)
-- [Validation & Testing](Validation_and_Testing.md)
