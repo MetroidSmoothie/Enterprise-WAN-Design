@@ -4,6 +4,10 @@
 ## Overview
 
 Network functionality was manually validated in Cisco Packet Tracer using connectivity tests, IOS verification commands, and security control testing.
+The following screenshot shows the completed three-site WAN implemented in Cisco Packet Tracer
+
+![Cisco Packet Tracer Implementation](../diagrams/Network_Topology_Links_Up.png)
+
 
 ## 1. Connectivity Tests 8/8 PASS
 
