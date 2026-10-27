@@ -1,243 +1,86 @@
+
 # Network Design Document
-## Enterprise WAN Architecture & Segmentation
 
----
+## 1. Project Overview
 
-## 1. Overview
+This project implements a simulated three-site enterprise WAN using Cisco Packet Tracer. The network demonstrates multi-site connectivity, dynamic routing, VLAN segmentation, inter-VLAN routing, and infrastructure security controls.
 
-This project implements a secure and scalable Wide Area Network (WAN) connecting three branch offices for a simulated banking environment.
+The architecture consists of three interconnected routers, office LANs, and dedicated IPv4 subnets supporting departmental workstations and infrastructure services.
 
-The objective was to design and configure a network that enables full inter-site communication while maintaining logical segmentation, controlled access, and hardened infrastructure following enterprise networking best practices.
+## 2. Network Architecture
 
-The solution was developed in Cisco Packet Tracer and includes:
+### 2.1 Three-Site WAN Topology
 
-- Multi-site WAN routing
-- VLAN segmentation
-- Inter-VLAN routing
-- Dynamic routing with OSPF
-- Access control policies
-- Switch port security
-- Secure device management
+The WAN connects three office locations through a triangular arrangement of serial links between routers R1, R2, and R3.
 
----
+![Enterprise WAN Topology](../diagrams/Network_Topology.png)
 
-## 2. Design Goals
+The interconnected topology provides multiple potential routing paths between routers, supporting dynamic route selection through OSPF.
 
-The network was designed to achieve the following:
+### 2.2 Site Architecture
 
-- Provide connectivity between all branch locations
-- Segment traffic to reduce broadcast domains
-- Improve security through VLAN isolation
-- Enable scalable routing using a dynamic protocol
-- Restrict unauthorized or guest access
-- Harden network devices against misuse
-- Follow real-world enterprise design standards
+| Location | Network Function | Infrastructure |
+|---|---|---|
+| Office 1 | Departmental network | Two switches, three VLANs, and inter-VLAN routing through R1 |
+| Office 2 | Employee and guest network | Single LAN subnet connected through R3 |
+| Office 3 | Administrative and server network | LAN hosting email, Syslog/NTP, and administrative systems through R3 |
 
----
+## 3. LAN Architecture
 
-## 3. High-Level Architecture
+### 3.1 Office 1 — VLAN Segmentation
 
-### Topology Summary
+Office 1 separates Management, Marketing, and Accounting workstations into three VLANs distributed across two interconnected switches.
 
-- 3 Routers (branch gateways + WAN core)
-- Layer 2 switches per site
-- Multiple VLANs at Office 1
-- Dedicated subnets per LAN
-- Point-to-point WAN links between routers
+IEEE 802.1Q trunking carries VLAN traffic between switches, while R1 provides inter-VLAN routing through dedicated router subinterfaces.
 
-### Logical Layout
+For the logical VLAN diagram, VLAN assignments, access-port mappings, and trunk connections, see **[VLAN and Trunking](VLAN_and_Trunking.md)**.
 
-<img src="../diagrams/Network_Topology_Links_Up.png" width="700">
+### 3.2 Office 2 — Employee and Guest Network
 
----
+Office 2 uses a shared LAN subnet for employee and guest workstations.
 
-## 4. LAN Design
+An extended ACL on R3 restricts guest access to a designated infrastructure server in Office 3 while permitting other traffic.
 
-Each office LAN is segmented to improve both performance and security.
+### 3.3 Office 3 — Infrastructure Services
 
-### Office 1 – VLAN Segmentation
+Office 3 hosts the email server, Syslog/NTP server, and an administrative workstation.
 
-Office 1 supports multiple business functions and is divided into separate VLANs.
+These resources connect to the enterprise WAN through R3 and are accessible according to the network's routing and access control configurations.
 
-| VLAN | Purpose |
-|-------|-----------|
-| 10 | Executive / CEO |
-| 20 | Copywriter Team |
-| 30 | Dialer Team |
+## 4. WAN Routing and IP Addressing
 
-Benefits:
+### 4.1 Dynamic Routing
 
-- Traffic isolation
-- Reduced broadcast domains
-- Security separation between departments
-- Easier policy enforcement
+OSPF Area 0 provides dynamic routing between R1, R2, and R3 across the interconnected serial WAN links.
 
----
+The routing design enables the routers to exchange network reachability information and provides alternative routing paths within the triangular topology.
 
-### Office 2
+Detailed routing design and OSPF neighbor relationships are documented in [Routing and OSPF](Routing_and_OSPF.md).
 
-Single subnet supporting:
+### 4.2 IPv4 Addressing
 
-- Employees
-- Guest devices
+The network uses the `172.16.10.0/24` address space, divided into eight `/27` subnets for the three WAN connections and five LAN/VLAN networks.
 
-Guest traffic is later restricted using ACLs.
+Interface addresses, subnet assignments, and endpoint addressing are documented in [IP Addressing Plan](IP_Addressing_Plan.md).
 
----
+## 5. Security Architecture
 
-### Office 3
+Security controls are implemented at the network and device levels.
 
-Infrastructure-focused subnet supporting:
+| Security Control | Implementation |
+|---|---|
+| Network segmentation | Dedicated VLANs and LAN subnets |
+| Traffic filtering | Extended ACL restricting specified guest traffic |
+| Switch port security | Sticky MAC address learning and port security |
+| Secure remote management | SSHv2 and local authentication |
+| Administrative access | Console and VTY access controls |
 
-- Email server
-- Syslog/NTP server
-- Administrative workstation
+Implementation details are documented in [Security Controls](Security_Controls.md).
 
----
+## 6. Implementation and Validation
 
-## 5. Inter-VLAN Routing
+The network was configured and tested in Cisco Packet Tracer.
 
-### Method: Router-on-a-Stick
+Validation included WAN connectivity, OSPF neighbor formation, inter-VLAN communication, ACL enforcement, switch port security, and administrative access.
 
-Inter-VLAN communication at Office 1 is handled by:
-
-- 802.1Q trunk between switch and router
-- Router subinterfaces for each VLAN
-- Dedicated gateway per VLAN
-
-### Rationale
-
-Router-on-a-Stick was selected because:
-
-- Cost-effective (single router)
-- Simple to configure
-- Suitable for small-to-medium branch environments
-- Common in enterprise branch deployments
-
----
-
-## 6. WAN Design
-
-### Router Interconnections
-
-Routers are connected using point-to-point serial links.
-
-### Routing Protocol: OSPF
-
-OSPF was implemented to:
-
-- Automatically advertise routes
-- Reduce manual configuration
-- Improve scalability
-- Provide fast convergence during failures
-- Simulate enterprise dynamic routing behavior
-
-### Benefits over Static Routing
-
-- Easier maintenance
-- Automatic route updates
-- Better fault tolerance
-
----
-
-## 7. Security Architecture
-
-Security controls were layered throughout the network to protect systems and limit lateral movement.
-
-### VLAN Segmentation
-
-- Logical separation of departments
-- Reduced attack surface
-
-### Access Control Lists (ACLs)
-
-- Restrict guest network access
-- Prevent unauthorized communication with sensitive resources
-- Enforce least-privilege traffic policies
-
-### Port Security
-
-- Sticky MAC learning
-- Prevent rogue devices
-- Limit unauthorized physical access
-
-### Device Hardening
-
-- SSHv2 only (no Telnet)
-- Encrypted passwords
-- Console authentication
-- Login banners
-- Secure remote management
-
----
-
-## 8. Addressing Strategy
-
-Each LAN and WAN link was assigned a dedicated subnet to:
-
-- Simplify troubleshooting
-- Improve isolation
-- Support scalability
-- Maintain consistent addressing
-
-Detailed subnet information is documented separately in:
-
-IP_Addressing_Plan.md
-
----
-
-## 9. Validation & Testing
-
-Connectivity and security were validated using:
-
-- ping and traceroute
-- Routing table verification
-- OSPF neighbor checks
-- VLAN segmentation tests
-- ACL enforcement tests
-- Port security verification
-
-Results confirmed:
-
-- Full WAN connectivity
-- Correct segmentation
-- Successful policy enforcement
-- Secure device access
-
----
-
-## 10. Lessons Learned
-
-Key takeaways from the implementation:
-
-- Proper subnet planning simplifies routing and troubleshooting
-- VLAN segmentation significantly improves security posture
-- Dynamic routing scales better than static routes
-- Layered security controls reduce risk
-- Clear documentation improves maintainability
-
----
-
-## 11. Skills Demonstrated
-
-This project demonstrates hands-on experience with:
-
-- Enterprise network design
-- Subnetting and addressing
-- VLAN implementation
-- Inter-VLAN routing
-- OSPF configuration
-- ACL design
-- Port security
-- Device hardening
-- Troubleshooting and validation
-- Technical documentation
-
----
-
-## 12. Tools Used
-
-- Cisco Packet Tracer
-- Cisco IOS CLI
-  
-
+Verification procedures and test results are documented in [Validation and Testing](Validation_and_Testing.md).
