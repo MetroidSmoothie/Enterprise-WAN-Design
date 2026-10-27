@@ -1,91 +1,43 @@
 # Enterprise-WAN-Design
 
-### Multi-Site Banking Network Simulation
+### Multi-Site Banking Network Simulation | Cisco Packet Tracer
 
 This project demonstrates the design, configuration, and validation of an **enterprise-style Wide Area Network (WAN)** connecting multiple branch locations for a simulated banking environment.
 
 The network was built in Cisco Packet Tracer and implements **LAN segmentation, inter-VLAN routing, dynamic routing, and layered security controls**, mirroring real-world enterprise network engineering and security practices.
 
----
+### Cisco Packet Tracer | Multi-Site Banking Network Simulation
 
-## Project Objective
+Designed and configured a simulated enterprise WAN connecting three office networks using Cisco routers and switches. The project demonstrates IPv4 subnetting, dynamic routing, VLAN segmentation, and network security controls.
 
-Design and deploy a secure, scalable WAN that connects **three branch LANs** while enabling full end-to-end communication across the organization.
+## Network Architecture
 
-The project required:
+- **WAN:** Three Cisco routers interconnected in a redundant triangle topology using OSPF Area 0.
+- **Addressing:** `172.16.10.0/24` divided into eight `/27` subnets.
+- **LAN:** Three Office 1 VLANs (Management, Marketing, Accounting) with 802.1Q trunking and router-on-a-stick inter-VLAN routing.
+- **Security:** Extended ACLs, sticky MAC port security, SSHv2, and local device authentication.
 
-- Subnetting and IP addressing design
-- VLAN segmentation
-- Inter-VLAN routing
-- Dynamic routing (OSPF)
-- Network hardening and access controls
-- Validation and testing of connectivity and security policies
+## Network Topology
 
-The final solution reflects how production enterprise networks are architected and secured.
+![Enterprise WAN Topology](diagrams/topology.png)
 
----
+## Technical Documentation
 
-## Architecture Overview
+| Document | Contents |
+|---|---|
+| [Network Design](docs/Network_Design_Document.md) | Topology, architecture, and design decisions |
+| [IP Addressing Plan](docs/IP_Addressing_Plan.md) | Subnets, gateways, and host addressing |
+| [VLANs & Trunking](docs/VLAN_and_Trunking.md) | VLAN assignments and 802.1Q configuration |
+| [Routing & OSPF](docs/Routing_and_OSPF.md) | WAN routing and OSPF Area 0 |
+| [Security Controls](docs/Security_Controls.md) | ACLs, port security, and device hardening |
+| [Validation & Testing](docs/Validation_and_Testing.md) | Connectivity and security verification |
 
-### Topology
-- 3 Routers (WAN core + branches)
-- Multiple Layer 2 switches
-- Multiple VLANs per LAN
-- Endpoints representing users, servers, and guest devices
+## Device Configurations
 
-### High-Level Design
-- Router-on-a-Stick for inter-VLAN routing
-- OSPF for dynamic route propagation
-- VLAN-based segmentation for security and performance
-- Extended ACLs for traffic control
-- Port security on access switches
-- Secure remote management via SSH
+- [Router Configurations](configs/Router_Configuration.md)
+- [Switch Configurations](configs/Switch_Configuration.md)
 
----
+## Tools
 
-## Technologies & Concepts Implemented
+Cisco Packet Tracer | Cisco IOS | OSPF | IEEE 802.1Q | IPv4 | ACLs | SSH
 
-### Networking
-- WAN architecture
-- Subnetting & VLSM
-- VLANs (10/20/30/100)
-- 802.1Q trunking
-- Inter-VLAN routing (router-on-a-stick)
-- OSPF dynamic routing
-- Static & default routes
-
-### Security
-- Extended Access Control Lists (ACLs)
-- Port security (sticky MAC)
-- SSHv2 remote management
-- Console authentication
-- Password encryption
-- Device hardening best practices
-- Segmented guest network isolation
-
-### Validation
-- End-to-end connectivity testing
-- Routing table verification
-- OSPF neighbor checks
-- VLAN segmentation tests
-- ACL enforcement tests
-
----
-
-## Repository Structure
-## Repository Structure
-
-```
-Enterprise-WAN-Design/
-├── README.md
-├── diagrams/
-   └── topology.png
-├── docs/
-   ├── Network_Design_Document.md
-   ├── IP_Addressing_Plan.md
-   ├── VLAN_and_Trunking.md
-   ├── Routing_and_OSPF.md
-   ├── Security_Controls.md
-   └── Validation_and_Testing.md
-└── configs/
-```
