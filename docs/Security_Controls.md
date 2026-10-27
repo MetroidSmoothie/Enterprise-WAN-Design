@@ -1,169 +1,72 @@
-# Security Controls
 
----
+# Network Security Controls
 
 ## Overview
 
-This document outlines the security mechanisms implemented to protect the WAN, restrict unauthorized access, and reduce risk across the simulated enterprise environment.
+The enterprise WAN implements network access restrictions, switch port security, and device management controls using Cisco IOS.
 
-The goal was to apply layered defensive controls that reflect real-world enterprise network hardening practices.
+## 1. Extended Access Control List (ACL)
 
-Network architecture and addressing details are documented separately in:
+A numbered extended ACL restricts traffic from the Office 2 Guest workstation to the Office 3 NTP/Syslog server.
 
-- Network_Design_Document.md
-- IP_Addressing_Plan.md
+| Parameter | Configuration |
+|---|---|
+| Device | R3 |
+| ACL | 100 (Extended) |
+| Interface | GigabitEthernet0/1 |
+| Direction | Inbound |
+| Source | Guest — `172.16.10.60` |
+| Destination | NTP/Syslog — `172.16.10.29` |
+| Action | Deny IP traffic |
+| Other Traffic | Explicitly permitted |
 
----
+**Verification:** `show access-lists` confirmed matches on both the deny and permit entries. `show ip interface GigabitEthernet0/1` confirmed ACL 100 applied inbound.
 
-## Security Objectives
+## 2. Switch Port Security
 
-The network was secured to achieve the following:
+Port security is configured on Office 1 end-device access ports to control which MAC addresses can use those interfaces.
 
-- Prevent unauthorized device access
-- Limit lateral movement between departments
-- Protect critical infrastructure systems
-- Restrict guest network privileges
-- Secure management access to network devices
-- Reduce attack surface at both Layer 2 and Layer 3
+| Control | Implementation |
+|---|---|
+| Devices | S1-Office1, S2-Office1 |
+| Interfaces | End-device access ports |
+| MAC Learning | Sticky |
+| Violation Mode | Restrict |
+| Trunk Interfaces | Excluded |
+| Unused Interfaces | Administratively disabled |
 
----
+Sticky MAC learning records dynamically learned MAC addresses in the running configuration. Restrict mode drops frames from unauthorized MAC addresses without shutting down the interface.
 
-## Layered Security Approach
+## 3. Device Authentication & Management
 
-Security was applied at multiple layers:
+| Control | Implementation |
+|---|---|
+| Local Authentication | Cisco IOS local user database |
+| Console Access | Local login authentication |
+| Privileged EXEC | Enable password |
+| Remote Router Access | SSH version 2 |
+| SSH Authentication | Local credentials |
+| VTY Access | SSH-only |
+| Login Banner | Authorized-access warning |
+| Password Obfuscation | `service password-encryption` |
 
-- Segmentation (VLANs)
-- Traffic filtering (ACLs)
-- Port-level protection (Port Security)
-- Device hardening (SSH, authentication, passwords)
+SSH provides encrypted remote management sessions. Cisco IOS password obfuscation is not equivalent to secure password hashing.
 
-This defense-in-depth strategy ensures that failure of a single control does not expose the entire network.
+## 4. VLAN Segmentation
 
----
+Office 1 uses three VLANs to separate departmental broadcast domains.
 
-## VLAN Segmentation
+| VLAN | Department |
+|---|---|
+| 10 | Management |
+| 20 | Marketing |
+| 30 | Accounting |
 
-Logical segmentation separates departments into independent broadcast domains.
+Inter-VLAN routing is enabled through R1. VLAN membership alone does not prevent communication between departments; additional filtering would be required to enforce departmental traffic restrictions.
 
-### Purpose
-- Reduce attack surface
-- Prevent unnecessary inter-department communication
-- Contain potential compromises
-- Improve traffic isolation
+## Implementation & Testing
 
-### Result
-Devices in separate VLANs must route through the gateway, where policies can be enforced.
-
----
-
-## Access Control Lists (ACLs)
-
-ACLs were implemented to control traffic between network segments.
-
-### Use Cases
-- Restrict guest devices from accessing internal resources
-- Protect sensitive servers
-- Enforce least-privilege communication
-- Limit unnecessary cross-network traffic
-
-### Benefits
-- Centralized traffic control
-- Improved security posture
-- Reduced lateral movement risk
-
----
-
-## Port Security
-
-Switch port security was enabled on access ports to prevent unauthorized devices from connecting to the network.
-
-### Controls Applied
-- Sticky MAC address learning
-- Maximum MAC address limits
-- Automatic violation handling
-
-### Benefits
-- Blocks rogue or unknown devices
-- Prevents MAC flooding attacks
-- Enhances physical network protection
-
----
-
-## Device Hardening
-
-Routers and switches were configured using secure management practices.
-
-### Hardening Measures
-
-- SSHv2 enabled for remote management
-- Telnet disabled
-- Encrypted passwords
-- Local authentication required
-- Console login protection
-- Login banners configured
-- Unused ports administratively disabled
-
-### Benefits
-- Protects management plane
-- Prevents credential interception
-- Reduces exposure to unauthorized access
-
----
-
-## Management Security
-
-Administrative access was restricted to authorized users only.
-
-### Practices
-- Password-protected console and VTY access
-- Encrypted remote sessions (SSH)
-- Limited management exposure
-
-These controls help protect against unauthorized configuration changes.
-
----
-
-## Validation and Testing
-
-The following checks were performed to verify controls:
-
-### VLAN isolation
-- Confirm devices cannot directly communicate across VLANs without routing
-
-### ACL enforcement
-- Test blocked vs allowed traffic flows
-
-### Port security
-- Attempt unauthorized device connections
-- Verify violations are triggered
-
-### Management protection
-- Confirm SSH access works
-- Confirm Telnet is unavailable
-
-Expected results:
-- Only permitted traffic succeeds
-- Unauthorized access attempts fail
-
----
-
-## Security Best Practices Applied
-
-- Principle of least privilege
-- Network segmentation
-- Defense in depth
-- Secure management protocols
-- Minimized attack surface
-- Continuous validation
-
----
-
-## Skills Demonstrated
-
-- VLAN-based segmentation
-- ACL traffic filtering
-- Switch port security
-- Network device hardening
-- Secure remote administration
-- Enterprise-style security architecture
-
+- [Router Configurations](../configs/Router_Configuration.md)
+- [Switch Configurations](../configs/Switch_Configuration.md)
+- [VLANs & Trunking](VLAN_and_Trunking.md)
+- [Validation & Testing](Validation_and_Testing.md)
