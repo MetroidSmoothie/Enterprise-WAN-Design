@@ -1,169 +1,77 @@
-# VLANs and Trunking
 
----
+# VLANs & Trunking
 
 ## Overview
 
-This document describes the VLAN segmentation and trunking configuration used to logically separate departments and transport multiple VLANs between switches and routers.
+Office 1 uses three VLANs across two Cisco switches to separate departmental broadcast domains. IEEE 802.1Q trunking carries VLAN traffic between switches and R1, which provides inter-VLAN routing.
 
-Detailed addressing information is documented separately in:
+## VLAN Configuration
 
-- Network_Design_Document.md
-- IP_Addressing_Plan.md
+| VLAN | Name | Network | Default Gateway |
+|---|---|---|---|
+| 10 | Management | `172.16.10.160/27` | `172.16.10.161` |
+| 20 | Marketing | `172.16.10.192/27` | `172.16.10.193` |
+| 30 | Accounting | `172.16.10.224/27` | `172.16.10.225` |
 
-This file focuses only on VLAN implementation and trunk behavior.
+VLANs are configured on both S1-Office1 and S2-Office1.
 
----
+## Trunk Connections
 
-## VLAN Strategy
+| Device | Interface | Connection | Mode |
+|---|---|---|---|
+| S1-Office1 | Gi0/1 | R1 Gi0/0 | 802.1Q trunk |
+| S1-Office1 | Gi0/2 | S2-Office1 | 802.1Q trunk |
+| S2-Office1 | Gi0/1 | S1-Office1 | 802.1Q trunk |
 
-VLANs were implemented to segment traffic by department and function.
+Trunks carry VLANs 10, 20, and 30.
 
-Segmentation provides:
+## Inter-VLAN Routing
 
-- Reduced broadcast domains
-- Improved performance
-- Logical isolation between groups
-- Enhanced security and policy enforcement
-- Easier network management
+R1 uses router-on-a-stick with one subinterface per VLAN.
 
----
+```cisco
+interface GigabitEthernet0/0.10
+ encapsulation dot1Q 10
+ ip address 172.16.10.161 255.255.255.224
 
-## Office 1 VLAN Layout
+interface GigabitEthernet0/0.20
+ encapsulation dot1Q 20
+ ip address 172.16.10.193 255.255.255.224
 
-Office 1 contains multiple departments and was segmented into dedicated VLANs.
+interface GigabitEthernet0/0.30
+ encapsulation dot1Q 30
+ ip address 172.16.10.225 255.255.255.224
+```
 
-| VLAN | Purpose |
-|--------|-----------|
-| 10 | Executive / CEO |
-| 20 | Copywriter Team |
-| 30 | Dialer Team |
+Each subinterface acts as the default gateway for its corresponding VLAN.
 
-Each VLAN operates as an independent Layer 2 broadcast domain.
+## Verification
 
-Inter-VLAN communication is handled by the branch router (Router-on-a-Stick).
+```cisco
+show vlan brief
+show interfaces trunk
+show interfaces switchport
+```
 
----
+On R1:
 
-## Access Ports
+```cisco
+show ip interface brief
+show ip route connected
+```
 
-End-user devices connect through access ports assigned to a single VLAN.
+Inter-VLAN connectivity can be tested from CEO1 to:
 
-### Behavior
-- Port carries traffic for only one VLAN
-- Untagged frames
-- Simplifies endpoint configuration
+```text
+ping 172.16.10.222
+ping 172.16.10.254
+```
 
-### Example configuration tasks
-- Assign port to VLAN
-- Disable dynamic negotiation if required
-- Enable port security (see Security documentation)
+These addresses correspond to Copywriter1 (VLAN 20) and Dialer1 (VLAN 30).
 
----
+## Related Documentation
 
-## Trunking
-
-### Purpose
-
-Trunk links allow multiple VLANs to traverse a single physical connection between:
-
-- Switch ↔ Router
-- Switch ↔ Switch
-
-This enables VLAN traffic to reach the routing device for inter-VLAN communication.
-
----
-
-### Trunk Characteristics
-
-- 802.1Q encapsulation
-- Tagged frames
-- Carries multiple VLANs simultaneously
-- Native VLAN support (if configured)
-
----
-
-### Trunk Links Implemented
-
-| Connection | Purpose |
-|-------------|-------------|
-| Switch ↔ Router | Inter-VLAN routing (Router-on-a-Stick) |
-| Switch ↔ Switch (if applicable) | VLAN propagation between switches |
-
----
-
-## Router-on-a-Stick Integration
-
-A trunk link connects the switch to the router.
-
-The router:
-
-- Uses subinterfaces
-- Tags traffic per VLAN
-- Acts as the default gateway for each VLAN
-- Performs inter-VLAN routing
-
-Traffic flow:
-
-Host → Access Port → Switch → Trunk → Router → Destination VLAN
-
----
-
-## Verification Commands
-
-The following checks were used to confirm VLAN and trunk operation:
-
-### VLAN status
-- show vlan brief
-
-Expected:
-- VLANs created
-- Access ports correctly assigned
-
----
-
-### Trunk status
-- show interfaces trunk
-
-Expected:
-- Trunk link active
-- Correct encapsulation
-- VLANs allowed on trunk
-
----
-
-### Connectivity tests
-- Ping default gateway from each VLAN
-- Ping hosts across VLANs
-
-Expected:
-- Successful inter-VLAN communication through the router
-
----
-
-## Common Issues and Fixes
-
-### Devices cannot reach gateway
-- Verify correct VLAN assignment
-- Confirm access port mode
-
-### VLAN traffic not passing between devices
-- Check trunk configuration
-- Verify VLAN allowed list
-
-### Inter-VLAN routing not working
-- Confirm trunk is up
-- Confirm router subinterfaces exist
-- Verify encapsulation matches VLAN IDs
-
----
-
-## Skills Demonstrated
-
-- VLAN segmentation
-- Access vs trunk port configuration
-- 802.1Q trunking
-- Router-on-a-Stick integration
-- Broadcast domain reduction
-- Layer 2 troubleshooting
-
+- [IP Addressing Plan](IP_Addressing_Plan.md)
+- [Router Configurations](../configs/Router_Configuration.md)
+- [Switch Configurations](../configs/Switch_Configuration.md)
+- [Validation & Testing](Validation_and_Testing.md)
