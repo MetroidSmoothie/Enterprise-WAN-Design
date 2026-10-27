@@ -1,100 +1,68 @@
-# IP Addressing Plan — Enterprise WAN (Mock Bank)
 
-## Overview
-This project uses the **172.16.10.0/24** address space. The /24 was subnetted into **8 equal subnets** to support:
-- Office 3 LAN
-- Office 2 LAN
-- Three WAN subnets (router-to-router connectivity)
-- Office 1 segmented into three VLANs (CEO / Copywriter / Dialer)
+# IP Addressing Plan
 
-**Gateway convention:** the first usable IP in each LAN/VLAN subnet is reserved as the default gateway (router interface/subinterface).
+## Addressing Summary
 
----
-
-## Subnetting Summary
-- **Base network:** 172.16.10.0/24  
-- **Subnet mask:** 255.255.255.224 (**/27**)  
-- **Number of subnets:** 8  
-- **Usable hosts per subnet:** 30  
-
----
+| Parameter | Value |
+|---|---|
+| Base Network | `172.16.10.0/24` |
+| Subnet Mask | `255.255.255.224` (`/27`) |
+| Subnets | 8 equal-sized networks |
+| Usable Hosts | 30 per subnet |
+| Gateway Convention | First usable IP in each LAN/VLAN |
 
 ## Subnet Allocation
 
-| Subnet | Purpose / Site | Network (CIDR) | Default Gateway | Usable Host Range | Broadcast |
-|------:|-----------------|----------------|-----------------|------------------|----------|
-| 1 | Office 3 LAN | 172.16.10.0/27 | 172.16.10.1 | 172.16.10.1 – 172.16.10.30 | 172.16.10.31 |
-| 2 | Office 2 LAN | 172.16.10.32/27 | 172.16.10.33 | 172.16.10.33 – 172.16.10.62 | 172.16.10.63 |
-| 3 | WAN Subnet (Router Link) | 172.16.10.64/27 | N/A | 172.16.10.65 – 172.16.10.94 | 172.16.10.95 |
-| 4 | WAN Subnet (Router Link) | 172.16.10.96/27 | N/A | 172.16.10.97 – 172.16.10.126 | 172.16.10.127 |
-| 5 | WAN Subnet (Router Link) | 172.16.10.128/27 | N/A | 172.16.10.129 – 172.16.10.158 | 172.16.10.159 |
-| 6 | Office 1 VLAN 10 — CEO | 172.16.10.160/27 | 172.16.10.161 | 172.16.10.161 – 172.16.10.190 | 172.16.10.191 |
-| 7 | Office 1 VLAN 20 — Copywriter | 172.16.10.192/27 | 172.16.10.193 | 172.16.10.193 – 172.16.10.222 | 172.16.10.223 |
-| 8 | Office 1 VLAN 30 — Dialer | 172.16.10.224/27 | 172.16.10.225 | 172.16.10.225 – 172.16.10.254 | 172.16.10.255 |
+| Office / Purpose | VLAN | Network | Gateway | Usable Range | Broadcast |
+|---|---|---|---|---|---|
+| Office 3 | — | `172.16.10.0/27` | `.1` | `.1–.30` | `.31` |
+| Office 2 | — | `172.16.10.32/27` | `.33` | `.33–.62` | `.63` |
+| R1–R2 WAN | — | `172.16.10.64/27` | — | `.65–.94` | `.95` |
+| R1–R3 WAN | — | `172.16.10.96/27` | — | `.97–.126` | `.127` |
+| R2–R3 WAN | — | `172.16.10.128/27` | — | `.129–.158` | `.159` |
+| Office 1 — Management | 10 | `172.16.10.160/27` | `.161` | `.161–.190` | `.191` |
+| Office 1 — Marketing | 20 | `172.16.10.192/27` | `.193` | `.193–.222` | `.223` |
+| Office 1 — Accounting | 30 | `172.16.10.224/27` | `.225` | `.225–.254` | `.255` |
 
----
+*Abbreviated addresses use the `172.16.10.x` prefix.*
 
-## Site Addressing Details
+## Router Interface Addressing
 
-### Office 3 LAN (Subnet 1 — 172.16.10.0/27)
-**Default gateway:** 172.16.10.1
+| Router | Interface | IP Address | Network |
+|---|---|---|---|
+| R1 | Gi0/0.10 | `172.16.10.161/27` | Office 1 — VLAN 10 |
+| R1 | Gi0/0.20 | `172.16.10.193/27` | Office 1 — VLAN 20 |
+| R1 | Gi0/0.30 | `172.16.10.225/27` | Office 1 — VLAN 30 |
+| R1 | S0/0/1 | `172.16.10.65/27` | R1–R2 |
+| R1 | S0/0/0 | `172.16.10.97/27` | R1–R3 |
+| R2 | S0/0/1 | `172.16.10.66/27` | R1–R2 |
+| R2 | S0/0/0 | `172.16.10.130/27` | R2–R3 |
+| R3 | Gi0/0 | `172.16.10.1/27` | Office 3 |
+| R3 | Gi0/1 | `172.16.10.33/27` | Office 2 |
+| R3 | S0/0/0 | `172.16.10.98/27` | R1–R3 |
+| R3 | S0/0/1 | `172.16.10.129/27` | R2–R3 |
 
-| Device | IP Address |
-|--------|------------|
-| Email Server | 172.16.10.30 |
-| Syslog / NTP Server | 172.16.10.29 |
-| Admin Workstation | 172.16.10.28 |
+## Endpoint Addressing
 
----
+| Office / VLAN | Device | IP Address |
+|---|---|---|
+| Office 3 | Email Server | `172.16.10.30` |
+| Office 3 | NTP/Syslog Server | `172.16.10.29` |
+| Office 3 | Admin Workstation | `172.16.10.28` |
+| Office 2 | Employee1 | `172.16.10.62` |
+| Office 2 | Employee2 | `172.16.10.61` |
+| Office 2 | Guest | `172.16.10.60` |
+| Office 1 — VLAN 10 | CEO1 | `172.16.10.190` |
+| Office 1 — VLAN 10 | CEO2 | `172.16.10.189` |
+| Office 1 — VLAN 20 | Copywriter1 | `172.16.10.222` |
+| Office 1 — VLAN 20 | Copywriter2 | `172.16.10.221` |
+| Office 1 — VLAN 30 | Dialer1 | `172.16.10.254` |
+| Office 1 — VLAN 30 | Dialer2 | `172.16.10.253` |
 
-### Office 2 LAN (Subnet 2 — 172.16.10.32/27)
-**Default gateway:** 172.16.10.33
+All listed interfaces and endpoints use subnet mask `255.255.255.224`.
 
-| Device | IP Address |
-|--------|------------|
-| Employee1 | 172.16.10.62 |
-| Employee2 | 172.16.10.61 |
-| Guest | 172.16.10.60 |
+## Related Documentation
 
----
-
-## Office 1 VLANs (Router-on-a-Stick)
-
-### VLAN 10 — CEO (Subnet 6 — 172.16.10.160/27)
-**Default gateway:** 172.16.10.161
-
-| Device | IP Address |
-|--------|------------|
-| CEO1 | 172.16.10.190 |
-| CEO2 | 172.16.10.189 |
-
----
-
-### VLAN 20 — Copywriter (Subnet 7 — 172.16.10.192/27)
-**Default gateway:** 172.16.10.193
-
-| Device | IP Address |
-|--------|------------|
-| Copywriter1 | 172.16.10.222 |
-| Copywriter2 | 172.16.10.221 |
-
-> Note: In a /27, **172.16.10.223 is the broadcast address** for this subnet, so Copywriter2 must use an address in the usable range (**172.16.10.193–172.16.10.222**). This plan assigns Copywriter2 **172.16.10.221**.
-
----
-
-### VLAN 30 — Dialer (Subnet 8 — 172.16.10.224/27)
-**Default gateway:** 172.16.10.225
-
-| Device | IP Address |
-|--------|------------|
-| Dialer1 | 172.16.10.254 |
-| Dialer2 | 172.16.10.253 |
-
----
-
-## Addressing Standards & Notes
-- **Gateways** use the first usable IP in each LAN/VLAN subnet.
-- **Infrastructure interfaces** (routers/switch management) use static IPs.
-- **Endpoints** are assigned within their subnet’s usable range.
-- WAN subnets are documented as router-to-router networks (no gateway concept).
-
+- [Network Design](Network_Design_Document.md)
+- [VLANs & Trunking](VLAN_and_Trunking.md)
+- [Router Configurations](../configs/Router_Configuration.md)
