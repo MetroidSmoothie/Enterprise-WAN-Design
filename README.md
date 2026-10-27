@@ -6,10 +6,6 @@ This project demonstrates the design, configuration, and validation of an **ente
 
 The network was built in Cisco Packet Tracer and implements **LAN segmentation, inter-VLAN routing, dynamic routing, and layered security controls**, mirroring real-world enterprise network engineering and security practices.
 
-### Cisco Packet Tracer | Multi-Site Banking Network Simulation
-
-Designed and configured a simulated enterprise WAN connecting three office networks using Cisco routers and switches. The project demonstrates IPv4 subnetting, dynamic routing, VLAN segmentation, and network security controls.
-
 ## Network Architecture
 
 - **WAN:** Three Cisco routers interconnected in a redundant triangle topology using OSPF Area 0.
