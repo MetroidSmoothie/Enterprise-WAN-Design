@@ -34,9 +34,3 @@ Passive interfaces advertise connected LAN networks without forming OSPF neighbo
 | R3 | R1, R2 |
 
 The triangular topology provides an alternate WAN path if a direct link becomes unavailable, subject to routing convergence.
-
-## Implementation & Testing
-
-- [Router Configurations](../configs/Router_Configuration.md)
-- [IP Addressing Plan](IP_Addressing_Plan.md)
-- [Validation & Testing](Validation_and_Testing.md)
