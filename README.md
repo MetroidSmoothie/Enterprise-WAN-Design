@@ -32,8 +32,3 @@ The network was built in Cisco Packet Tracer and implements **LAN segmentation, 
 
 - [Router Configurations](configs/Router_Configuration.md)
 - [Switch Configurations](configs/Switch_Configuration.md)
-
-## Tools
-
-Cisco Packet Tracer | Cisco IOS | OSPF | IEEE 802.1Q | IPv4 | ACLs | SSH
-
