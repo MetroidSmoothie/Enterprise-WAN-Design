@@ -15,7 +15,7 @@ The network was built in Cisco Packet Tracer and implements **LAN segmentation, 
 
 ## Network Topology
 
-![Enterprise WAN Topology](diagrams/Network Topology.png)
+![Enterprise WAN Topology](diagrams/Network_Topology.png)
 
 ## Technical Documentation
 
