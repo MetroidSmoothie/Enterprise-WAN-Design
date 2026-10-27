@@ -60,9 +60,3 @@
 | Office 1 — VLAN 30 | Dialer2 | `172.16.10.253` |
 
 All listed interfaces and endpoints use subnet mask `255.255.255.224`.
-
-## Related Documentation
-
-- [Network Design](Network_Design_Document.md)
-- [VLANs & Trunking](VLAN_and_Trunking.md)
-- [Router Configurations](../configs/Router_Configuration.md)
