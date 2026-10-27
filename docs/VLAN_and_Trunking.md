@@ -36,10 +36,3 @@ R1 uses router-on-a-stick to route traffic between Office 1 VLANs through subint
 | Gi0/0.30 | 30 | `172.16.10.225` |
 
 Each VLAN operates as a separate broadcast domain. Inter-VLAN communication is permitted through R1 unless restricted by an applicable access control policy.
-
-## Implementation & Testing
-
-- [Router Configurations](../configs/Router_Configuration.md)
-- [Switch Configurations](../configs/Switch_Configuration.md)
-- [IP Addressing Plan](IP_Addressing_Plan.md)
-- [Validation & Testing](Validation_and_Testing.md)
