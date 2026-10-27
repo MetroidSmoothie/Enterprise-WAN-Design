@@ -1,264 +1,95 @@
 
-# Validation and Testing
-
----
+# Validation & Testing
 
 ## Overview
 
-This document provides a complete end-to-end validation checklist used to verify that the enterprise WAN, VLAN segmentation, routing, and security controls are functioning correctly after implementation.
+Network functionality was manually validated in Cisco Packet Tracer using connectivity tests, IOS verification commands, and security control testing.
 
-The goal is to systematically confirm:
+## 1. Connectivity Tests 8/8 PASS
 
-- Physical connectivity
-- VLAN segmentation
-- Inter-VLAN routing
-- WAN routing (OSPF)
-- End-to-end reachability
-- Security enforcement
-- Device hardening
+| Source | Destination | Expected Result | Actual Result | Status |
+|---|---|---|---|---|
+| CEO1 | Copywriter1 (`172.16.10.222`) | Reachable | Reachable | PASS |
+| CEO1 | Dialer1 (`172.16.10.254`) | Reachable | Reachable | PASS |
+| Admin PC | CEO1 (`172.16.10.190`) | Reachable | Reachable | PASS |
+| Admin PC | Employee1 (`172.16.10.62`) | Reachable | Reachable | PASS |
+| Employee2 | Copywriter1 (`172.16.10.222`) | Reachable | Reachable | PASS |
+| Employee2 | Dialer1 (`172.16.10.254`) | Reachable | Reachable | PASS |
+| Guest (`172.16.10.60`) | NTP/Syslog (`172.16.10.29`) | Blocked | Blocked | PASS |
+| Guest (`172.16.10.60`) | Email Server (`172.16.10.30`) | Reachable | Reachable | PASS |
 
-This serves as a final acceptance test for the network.
+## 2. Routing Verification
 
----
+Verification commands:
 
-## Testing Methodology
+```cisco
+show ip interface brief
+show ip ospf neighbor
+show ip route
+show ip protocols
+```
 
-Validation follows a layered approach:
+| Router | Expected OSPF Neighbors |
+|---|---|
+| R1 | R2, R3 |
+| R2 | R1, R3 |
+| R3 | R1, R2 |
 
-1. Layer 1–2 (interfaces, VLANs, trunks)
-2. Layer 3 (routing & gateways)
-3. WAN connectivity
-4. Security controls
-5. End-to-end functional testing
+## 3. VLAN & Switch Verification
 
-Each section builds on the previous one.
+Verification commands:
 
----
+```cisco
+show vlan brief
+show interfaces trunk
+show port-security
+show port-security address
+show port-security interface FastEthernet0/1
+```
 
-# Phase 1 — Interface & Device Health
+Validation covers VLAN membership, trunk operation, sticky MAC learning, and port-security configuration.
 
-## Objective
-Ensure all devices and links are operational.
+## 4. ACL Verification
 
-### Commands
-- show ip interface brief
-- show interfaces status
+ACL 100 was verified inbound on R3 GigabitEthernet0/1.
 
-### Verify
-- All required interfaces are up/up
-- No unexpected administratively down ports
-- No physical link failures
+| Check | Observed Result | Status |
+|---|---|---|
+| ACL 100 configured | Confirmed | PASS |
+| Inbound application on Gi0/1 | Confirmed | PASS |
+| Guest-to-NTP/Syslog restriction | Blocked | PASS |
+| Other traffic permitted | Confirmed | PASS |
 
----
+Observed ACL counters:
 
-# Phase 2 — VLAN & Switching Validation
+- Deny entry: 16 matches
+- Permit entry: 19 matches
 
-## Objective
-Confirm correct Layer 2 segmentation.
+## 5. Management Access Verification
 
-### Commands
-- show vlan brief
-- show interfaces trunk
+```cisco
+show ip ssh
+show running-config
+```
 
-### Verify
-- All VLANs exist
-- Access ports assigned correctly
-- Trunk links active
-- Correct VLANs allowed on trunk
+Management configuration includes SSHv2, local authentication, and SSH-only VTY access on routers.
 
-### Functional Tests
-From each VLAN:
-- Ping local host in same VLAN → should succeed
-- Attempt direct cross-VLAN ping → should fail without routing
+## 6. Configuration Persistence
 
----
+```cisco
+show startup-config
+```
 
-# Phase 3 — Default Gateway Validation
+Configurations were saved to NVRAM using:
 
-## Objective
-Confirm hosts can reach their gateway.
+```cisco
+copy running-config startup-config
+```
 
-### Test (per VLAN/LAN)
-- Ping default gateway
+## Related Documentation
 
-### Expected
-- Successful reply
-
-Failure here indicates:
-- Wrong IP
-- Wrong VLAN assignment
-- Trunk issue
-- Subinterface misconfiguration
-
----
-
-# Phase 4 — Inter-VLAN Routing Validation
-
-## Objective
-Confirm Router-on-a-Stick routing works.
-
-### Tests
-From each VLAN:
-- Ping host in another VLAN
-
-### Expected
-- Successful communication
-
-### Troubleshoot if failed
-- Verify trunk
-- Verify subinterfaces
-- Verify encapsulation
-- Verify gateway settings
-
----
-
-# Phase 5 — OSPF Neighbor Validation
-
-## Objective
-Confirm dynamic routing adjacencies.
-
-### Commands
-- show ip ospf neighbor
-
-### Expected
-- All routers listed
-- State = FULL
-
-Failure indicates:
-- Area mismatch
-- Interface down
-- Network statement missing
-- Incorrect addressing
-
----
-
-# Phase 6 — Route Table Validation
-
-## Objective
-Ensure all networks are learned dynamically.
-
-### Commands
-- show ip route
-
-### Verify
-- Remote LAN/VLAN subnets present
-- Marked as OSPF-learned routes (O)
-
-### Expected
-- No missing routes
-- No manual static routes required
-
----
-
-# Phase 7 — WAN Connectivity Testing
-
-## Objective
-Verify inter-site communication.
-
-### Tests
-From each office:
-- Ping remote office gateway
-- Ping remote workstation
-- Run traceroute
-
-### Expected
-- Successful connectivity
-- Logical routing path across WAN routers
-
----
-
-# Phase 8 — Security Control Validation
-
-## VLAN Isolation
-- Confirm devices cannot bypass gateway to reach other VLANs
-
-## ACL Enforcement
-- Test restricted traffic (guest → internal)
-- Expected: blocked
-- Test permitted traffic
-- Expected: allowed
-
-## Port Security
-- Attempt connecting unauthorized device
-- Expected: violation triggered or blocked
-
-## Device Management
-- SSH works
-- Telnet fails
-- Console login required
-
----
-
-# Phase 9 — End-to-End Scenario Testing
-
-## Objective
-Validate full business functionality.
-
-### Example tests
-- Office 1 → Office 2 communication
-- Office 1 → Office 3 servers
-- Office 2 → Office 3 services
-- Cross-site resource access
-
-### Expected
-- All legitimate traffic succeeds
-- No unintended restrictions
-
----
-
-# Phase 10 — Failure Simulation (Optional but Recommended)
-
-## Objective
-Confirm resiliency and troubleshooting capability.
-
-### Tests
-- Disable a link
-- Restart OSPF neighbor
-- Re-enable
-
-### Expected
-- Routes reconverge automatically
-- Connectivity restored
-
----
-
-# Acceptance Criteria
-
-The network is considered operational when:
-
-- All interfaces are up
-- VLANs function correctly
-- Gateways reachable
-- Inter-VLAN routing works
-- OSPF neighbors established
-- All routes present
-- Inter-site communication successful
-- Security controls enforced
-- Management secured via SSH
-
----
-
-# Skills Demonstrated
-
-- Structured network validation methodology
-- Layered troubleshooting
-- OSPF verification
-- VLAN and trunk validation
-- Security testing
-- End-to-end connectivity assurance
-
----
-
-## Notes
-
-Addressing details:
-→ IP_Addressing_Plan.md
-
-Architecture:
-→ Network_Design_Document.md
-
-Routing behavior:
-→ Routing_and_OSPF.md
-
-Security controls:
-→ Security_Controls.md
+- [Network Design](Network_Design_Document.md)
+- [Routing & OSPF](Routing_and_OSPF.md)
+- [Security Controls](Security_Controls.md)
+- [Router Configurations](../configs/Router_Configuration.md)
+- [Switch Configurations](../configs/Switch_Configuration.md)
